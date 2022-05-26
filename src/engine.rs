@@ -1,3 +1,9 @@
+#![allow(warnings)]
+#![feature(asm)]
+
+// https://github.com/mmore21/dolos
+// https://github.com/mmore21/dolos/blob/master/src/engine.rs
+
 use std::arch::asm;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
@@ -40,21 +46,23 @@ macro_rules! junk {
     };
 }
 
+pub(crate) use junk;
+
 /// Reads binary contents from a file, metamorphs the code, then writes the metamorphic binary contents.
 ///
 /// # Arguments
 ///
 /// * `filename` - Binary file to metamorphically change.
-pub fn exec(filename: &str)
-{
-    let mut code = Vec::new(); junk!();
-
-    read_binary_file(filename, &mut code).ok(); junk!();
-
-    metamorph(&mut code); junk!();
-
-    write_binary_file(filename, &mut code).ok(); junk!();
-}
+// pub fn exec(filename: &str)
+// {
+//     let mut code = Vec::new(); junk!();
+// 
+//     read_binary_file(filename, &mut code).ok(); junk!();
+// 
+//     metamorph(&mut code); junk!();
+// 
+//     write_binary_file(filename, &mut code).ok(); junk!();
+// }
 
 /// Checks if an opcode is a push instruction.
 ///
@@ -131,7 +139,7 @@ fn is_metamorphic_payload(code: &mut [u8], idx: usize, reg_offset: u8) -> bool
 /// # Arguments
 ///
 /// * `code` - Vector containing each byte of binary code.
-fn metamorph(code: &mut [u8])
+pub fn metamorph(code: &mut [u8])
 {
     for i in 0..code.len() - PAYLOAD_LEN - 2
     {
@@ -254,11 +262,11 @@ fn write_instruction(code: &mut [u8], idx: usize, payload_capacity: usize, reg_o
 /// # Return Value
 /// 
 /// Result of the read and delete I/O operations.
-fn read_binary_file(filename: &str, code: &mut Vec<u8>) -> std::io::Result<()>
+pub fn read_binary_file(filename: &str, code: &mut Vec<u8>) -> std::io::Result<()>
 {
-    *code = fs::read(filename).unwrap();
+    *code = fs::read(filename).unwrap(); junk!();
 
-    fs::remove_file(filename)?;
+    fs::remove_file(filename)?; junk!();
 
     Ok(())
 }
@@ -273,13 +281,13 @@ fn read_binary_file(filename: &str, code: &mut Vec<u8>) -> std::io::Result<()>
 /// # Return Value
 /// 
 /// Result of the write I/O operation.
-fn write_binary_file(filename: &str, code: &mut [u8]) -> std::io::Result<()>
+pub fn write_binary_file(filename: &str, code: &mut [u8]) -> std::io::Result<()>
 {
     fs::write(filename, code)?; junk!();
 
-    let mut permissions = fs::metadata(filename)?.permissions();
-    permissions.set_mode(0o700);
-    fs::set_permissions(filename, permissions)?;
+    let mut permissions = fs::metadata(filename)?.permissions(); junk!();
+    permissions.set_mode(0o700); junk!();
+    fs::set_permissions(filename, permissions)?; junk!();
 
     Ok(())
 }

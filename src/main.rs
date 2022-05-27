@@ -2,51 +2,54 @@
 #![feature(asm)]
 
 use std::arch::asm;
-use object::{File, Object, ObjectSection};
 use std::env;
-use std::error::Error;
+use std::mem::transmute;
 
-mod engine;
+// modules
+mod metamorphic;
+mod polymorphic;
+
+// key section
+#[link_section = ".unixb"]
+#[used]
+static mut KEY: [u8; polymorphic::CRYPTED_FUNC_SIZE] = [0; polymorphic::CRYPTED_FUNC_SIZE];
+
+// Payload function section
+#[link_section = ".reloc"]
+pub fn payload() {
+    println!("Hello World!");
+}
 
 #[link_section = ".reloc"]
 #[used]
-static mut RUN_COUNT: u8 = 0;
+static FUNC: fn() = payload;
 
-fn get_section(file: &File, name: &str) -> Option<(u64, u64)> {
-    for section in file.sections() {
-        engine::junk!();
-        match section.name() {
-            Ok(n) if n == name => {
-                return section.file_range();
-            }
-            _ => {}
-        }
-        engine::junk!();
-    }
-    None
-}
-
-fn main() -> Result<(), Box<dyn Error>> {
-    let run_count = unsafe { RUN_COUNT }; engine::junk!();
-    println!("Previous run count: {}", run_count);
-
-    let args: Vec<String> = env::args().collect(); engine::junk!();
+fn main() {
+    let args: Vec<String> = env::args().collect();
     let filename = &args[0];
-    let mut code = Vec::new(); engine::junk!();
+    let mut code = Vec::new();
 
-    engine::read_binary_file(filename, &mut code).ok(); engine::junk!();
+    // Read argv[0] into code variable
+    metamorphic::read_binary_file(filename, &mut code).ok();
 
-    engine::metamorph(&mut code); engine::junk!();
+    // Check for ASM locations and randomize junk bytes
+    metamorphic::metamorph(&mut code);
 
-    let file = File::parse(&*code)?; engine::junk!();
+    // Initialize linked sections
+    let mut key = unsafe { KEY };
+    let func = unsafe { FUNC };
 
-    if let Some(range) = get_section(&file, ".reloc") {
-        assert_eq!(range.1, 1);
-        let base = range.0 as usize;
-        code[base..(base + 1)].copy_from_slice(&(run_count + 1).to_ne_bytes()); engine::junk!();
-    }
+    // Decrypt payload function section
+    let decrypted_func = polymorphic::decrypt_func(&mut code, &mut key).ok().unwrap();
+    let func_ptr = decrypted_func.as_ptr();
+    let decrypted_func_ptr: fn() = unsafe { transmute(func_ptr) };
 
-    engine::write_binary_file(filename, &mut code).ok(); engine::junk!();
+    // Run decrypted payload function
+    // decrypted_func_ptr();
 
-    Ok(())
+    // Re-encrypt payload function section with new random key
+    polymorphic::encrypt_func(&mut code, decrypted_func, &mut key).ok();
+
+    // Rewrite binary file
+    metamorphic::write_binary_file(filename, &mut code).ok();
 }

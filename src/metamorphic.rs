@@ -10,7 +10,7 @@ use std::os::unix::fs::PermissionsExt;
 
 use rand;
 
-const PAYLOAD_LEN: usize = 8;
+const PAYLOAD_LEN: usize = 16;
 const ESP_OFFSET: u8 = 4;
 const ADDB: u8 = 0x00;
 const ADDV: u8 = 0x01;
@@ -32,6 +32,14 @@ macro_rules! junk {
             asm!(
                 ".code32",
                 "push eax",
+                "nop",
+                "nop",
+                "nop",
+                "nop",
+                "nop",
+                "nop",
+                "nop",
+                "nop",
                 "nop",
                 "nop",
                 "nop",

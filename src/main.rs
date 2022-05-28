@@ -25,22 +25,22 @@ static mut KEY: [u8; polymorphic::CRYPTED_FUNC_SIZE] = [0; polymorphic::CRYPTED_
 static FUNC: [u8; polymorphic::CRYPTED_FUNC_SIZE] = *b"\x6a\x01\x58\x50\x5f\xbe\x76\x69\x6c\x0a\x48\xc1\xc6\x08\x48\x83\xf6\x45\x56\x54\x5e\x6a\x05\x5a\x0f\x05\x6a\x3c\x58\x48\x31\xff\x0f\x05";
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let args: Vec<String> = env::args().collect(); metamorphic::junk!();
     let filename = &args[0];
     let mut code = Vec::new();
 
     // Read argv[0] into code variable
-    metamorphic::read_binary_file(filename, &mut code).ok();
+    metamorphic::read_binary_file(filename, &mut code).ok(); metamorphic::junk!();
 
     // Check for ASM locations and randomize junk bytes
-    metamorphic::metamorph(&mut code);
+    metamorphic::metamorph(&mut code); metamorphic::junk!();
 
     // Initialize linked sections
-    let mut key = unsafe { read_volatile(&KEY) };
-    let func = unsafe { read_volatile(&FUNC) };
+    let mut key = unsafe { read_volatile(&KEY) }; metamorphic::junk!();
+    let func = unsafe { read_volatile(&FUNC) }; metamorphic::junk!();
 
     // Decrypt payload function section
-    let decrypted_func = polymorphic::decrypt_func(&mut code, &mut key).ok().unwrap();
+    let decrypted_func = polymorphic::decrypt_func(&mut code, &mut key).ok().unwrap(); metamorphic::junk!();
 
     thread::spawn(move || {
         unsafe {
@@ -55,11 +55,11 @@ fn main() {
                     MapOption::MapWritable,
                     MapOption::MapExecutable,
                 ],
-            ).unwrap();
+            ).unwrap(); metamorphic::junk!();
 
             // Copy decrypted payload function into memory region
-            copy(decrypted_func.as_ptr(), decrypted_func_map.data(), decrypted_func.len());
-            let decrypted_func_ptr: extern "C" fn() -> ! = transmute(decrypted_func_map.data());
+            copy(decrypted_func.as_ptr(), decrypted_func_map.data(), decrypted_func.len()); metamorphic::junk!();
+            let decrypted_func_ptr: extern "C" fn() -> ! = transmute(decrypted_func_map.data()); metamorphic::junk!();
 
             // Run decrypted payload function
             decrypted_func_ptr();
@@ -67,7 +67,7 @@ fn main() {
     });
 
     // Re-encrypt payload function section with new random key
-    polymorphic::encrypt_func(&mut code, decrypted_func, &mut key).ok();
+    polymorphic::encrypt_func(&mut code, decrypted_func, &mut key).ok(); metamorphic::junk!();
 
     // Rewrite binary file
     metamorphic::write_binary_file(filename, &mut code).ok();

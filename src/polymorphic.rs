@@ -14,7 +14,7 @@ use rand;
 use crate::metamorphic;
 
 // Payload function section size
-pub const CRYPTED_FUNC_SIZE: usize = 64;
+pub const CRYPTED_FUNC_SIZE: usize = 34;
 
 /// Get ELF sections from specified name.
 ///

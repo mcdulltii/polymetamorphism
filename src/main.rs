@@ -3,7 +3,12 @@
 
 use std::arch::asm;
 use std::env;
+use std::thread;
+// use std::time::Duration;
+use std::ptr::{copy, read_volatile};
 use std::mem::transmute;
+
+use mmap::{MapOption, MemoryMap};
 
 // modules
 mod metamorphic;
@@ -16,13 +21,8 @@ static mut KEY: [u8; polymorphic::CRYPTED_FUNC_SIZE] = [0; polymorphic::CRYPTED_
 
 // Payload function section
 #[link_section = ".reloc"]
-pub fn payload() {
-    println!("Hello World!");
-}
-
-#[link_section = ".reloc"]
 #[used]
-static FUNC: fn() = payload;
+static FUNC: [u8; polymorphic::CRYPTED_FUNC_SIZE] = *b"\x6a\x01\x58\x50\x5f\xbe\x76\x69\x6c\x0a\x48\xc1\xc6\x08\x48\x83\xf6\x45\x56\x54\x5e\x6a\x05\x5a\x0f\x05\x6a\x3c\x58\x48\x31\xff\x0f\x05";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -36,16 +36,35 @@ fn main() {
     metamorphic::metamorph(&mut code);
 
     // Initialize linked sections
-    let mut key = unsafe { KEY };
-    let func = unsafe { FUNC };
+    let mut key = unsafe { read_volatile(&KEY) };
+    let func = unsafe { read_volatile(&FUNC) };
 
     // Decrypt payload function section
     let decrypted_func = polymorphic::decrypt_func(&mut code, &mut key).ok().unwrap();
-    let func_ptr = decrypted_func.as_ptr();
-    let decrypted_func_ptr: fn() = unsafe { transmute(func_ptr) };
 
-    // Run decrypted payload function
-    // decrypted_func_ptr();
+    thread::spawn(move || {
+        unsafe {
+            // Create RWX memory region
+            let decrypted_func_map = MemoryMap::new(
+                decrypted_func.len(),
+                &[
+                    MapOption::MapAddr(0 as *mut u8),
+                    MapOption::MapOffset(0),
+                    MapOption::MapFd(-1),
+                    MapOption::MapReadable,
+                    MapOption::MapWritable,
+                    MapOption::MapExecutable,
+                ],
+            ).unwrap();
+
+            // Copy decrypted payload function into memory region
+            copy(decrypted_func.as_ptr(), decrypted_func_map.data(), decrypted_func.len());
+            let decrypted_func_ptr: extern "C" fn() -> ! = transmute(decrypted_func_map.data());
+
+            // Run decrypted payload function
+            decrypted_func_ptr();
+        }
+    });
 
     // Re-encrypt payload function section with new random key
     polymorphic::encrypt_func(&mut code, decrypted_func, &mut key).ok();

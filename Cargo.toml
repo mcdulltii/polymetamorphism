@@ -17,5 +17,6 @@ panic = "abort"
 rpath = false
 
 [dependencies]
+mmap = "0.1"
 object = "0.28.3"
 rand="0.8.5"

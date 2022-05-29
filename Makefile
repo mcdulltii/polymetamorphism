@@ -7,8 +7,10 @@ BIN = aibohphobia
 
 # Debugging
 OBJDUMP = objdump
-KEYFLAGS = -s -j .unixb
-FUNCFLAGS = -s -j .reloc
+KEYFLAGS = -s -j .nsp0
+NONCEFLAGS = -s -j .nsp1
+FIRSTFLAGS = -s -j .nsp2
+FUNCFLAGS = -s -j .charmve
 
 .PHONY: $(BIN) debug run
 
@@ -17,11 +19,13 @@ all: $(BIN)
 $(BIN):
 	$(CARGO) $(FLAGS)
 
-run: debug
+run:
 	$(BUILD)/$(RELEASE)/$(BIN)
 
 debug:
 	$(OBJDUMP) $(KEYFLAGS) $(BUILD)/$(RELEASE)/$(BIN)
+	$(OBJDUMP) $(NONCEFLAGS) $(BUILD)/$(RELEASE)/$(BIN)
+	$(OBJDUMP) $(FIRSTFLAGS) $(BUILD)/$(RELEASE)/$(BIN)
 	$(OBJDUMP) $(FUNCFLAGS) $(BUILD)/$(RELEASE)/$(BIN)
 
 clean:

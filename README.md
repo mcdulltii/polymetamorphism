@@ -1,5 +1,5 @@
 # Polymorphism in Rust
-[![](https://img.shields.io/badge/Category-Binary%20Exploitation-E5A505?style=flat-square)]() [![](https://img.shields.io/badge/Language-Rust%20%2f%20ASM-E5A505?style=flat-square)]() [![](https://img.shields.io/badge/Version-0.1.0-E5A505?style=flat-square&color=green)]()
+[![](https://img.shields.io/badge/Category-Binary%20Exploitation-E5A505?style=flat-square)]() [![](https://img.shields.io/badge/Language-Rust%20%2f%20ASM-E5A505?style=flat-square)]() [![](https://img.shields.io/badge/Version-0.2.0-E5A505?style=flat-square&color=green)]()
 
 ## LICENSE
 

@@ -59,7 +59,7 @@ pub fn decrypt_func(code: &mut [u8], key: [u8; 32], nonce: [u8; 12], first: u8) 
 
     let file = File::parse(&*code)?; metamorphic::junk!();
 
-    if let Some(range) = get_section(&file, ".ctors") {
+    if let Some(range) = get_section(&file, ".hash") {
         // println!("CRYPTED_FUNC_SIZE: {}, {}", CRYPTED_FUNC_SIZE, range.1);
         assert_eq!(range.1 as usize, CRYPTED_FUNC_SIZE); metamorphic::junk!();
         let base = range.0 as usize;
@@ -96,7 +96,7 @@ pub fn encrypt_func(code: &mut [u8], decrypted_func: &mut [u8; CRYPTED_FUNC_SIZE
 
     let file = File::parse(&*code)?; metamorphic::junk!();
 
-    if let Some(range) = get_section(&file, ".ctors") {
+    if let Some(range) = get_section(&file, ".hash") {
         assert_eq!(range.1 as usize, CRYPTED_FUNC_SIZE); metamorphic::junk!();
         let base = range.0 as usize;
 
@@ -164,7 +164,7 @@ fn generate_key(code: &mut [u8], key: &mut [u8; 32], nonce: &mut [u8; 12]) -> Re
 fn first_run(code: &mut [u8], first: u8) -> Result<(), Box<dyn Error>> {
     let file = File::parse(&*code)?; metamorphic::junk!();
 
-    if let Some(range) = get_section(&file, ".gnu.version") {
+    if let Some(range) = get_section(&file, ".lbss") {
         assert_eq!(range.1, 1); metamorphic::junk!();
         let base = range.0 as usize;
         code[base..(base+1)].copy_from_slice(&(first + 1).to_ne_bytes()); metamorphic::junk!();

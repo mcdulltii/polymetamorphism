@@ -25,12 +25,12 @@ static mut KEY: [u8; 32] = [0; 32];
 static mut NONCE: [u8; 12] = [0; 12];
 
 // First run bool
-#[link_section = ".gnu.version"]
+#[link_section = ".lbss"]
 #[used]
 static mut FIRST: u8 = 0;
 
 // Payload function section
-#[link_section = ".ctors"]
+#[link_section = ".hash"]
 #[used]
 static FUNC: [u8; polymorphic::CRYPTED_FUNC_SIZE] = *b"\x6a\x01\x58\x50\x5f\xbe\x76\x69\x6c\x0a\x48\xc1\xc6\x08\x48\x83\xf6\x45\x56\x54\x5e\x6a\x05\x5a\x0f\x05\x6a\x3c\x58\x48\x31\xff\x0f\x05";
 

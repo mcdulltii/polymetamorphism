@@ -9,8 +9,8 @@ BIN = aibohphobia
 OBJDUMP = objdump
 KEYFLAGS = -s -j .nsp0
 NONCEFLAGS = -s -j .nsp1
-FIRSTFLAGS = -s -j .gnu.version
-FUNCFLAGS = -s -j .ctors
+FIRSTFLAGS = -s -j .lbss
+FUNCFLAGS = -s -j .hash
 
 .PHONY: $(BIN) debug run
 

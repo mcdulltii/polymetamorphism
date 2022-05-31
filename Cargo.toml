@@ -17,6 +17,7 @@ panic = "abort"
 rpath = false
 
 [dependencies]
+nix = "0.24.1"
 chacha20 = "0.9.0"
 mmap = "0.1"
 object = "0.28.3"

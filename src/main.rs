@@ -3,11 +3,10 @@
 
 use std::arch::asm;
 use std::env;
-use std::thread;
-use std::time::Duration;
 use std::ptr::{copy, read_volatile};
 use std::mem::transmute;
 
+use nix::unistd::{fork, ForkResult};
 use mmap::{MapOption, MemoryMap};
 
 // modules
@@ -32,7 +31,7 @@ static mut FIRST: u8 = 0;
 // Payload function section
 #[link_section = ".hash"]
 #[used]
-static FUNC: [u8; polymorphic::CRYPTED_FUNC_SIZE] = *b"\x6a\x01\x58\x50\x5f\xbe\x76\x69\x6c\x0a\x48\xc1\xc6\x08\x48\x83\xf6\x45\x56\x54\x5e\x6a\x05\x5a\x0f\x05\x6a\x3c\x58\x48\x31\xff\x0f\x05";
+static FUNC: [u8; polymorphic::CRYPTED_FUNC_SIZE] = *b"\x55\x48\x89\xe5\x48\x81\xec\x68\x01\x00\x00\x48\xb8\x47\x75\x65\x73\x73\x20\x74\x68\x48\xba\x65\x20\x66\x6c\x61\x67\x3f\x0a\x48\x89\x45\xd0\x48\x89\x55\xd8\xc7\x45\xf8\x10\x00\x00\x00\x48\xb8\x49\x6e\x63\x6f\x72\x72\x65\x63\x48\x89\x45\xc6\x66\xc7\x45\xce\x74\x0a\xc7\x45\xf4\x0a\x00\x00\x00\xc7\x45\xc0\x46\x6c\x61\x67\x66\xc7\x45\xc4\x3a\x20\xc7\x45\xf0\x06\x00\x00\x00\x48\xb8\x57\x68\x79\x5f\x63\x34\x6e\x74\x48\xba\x5f\x31\x5f\x64\x33\x63\x30\x6d\x48\x89\x45\x90\x48\x89\x55\x98\x48\xb8\x70\x31\x6c\x33\x5f\x74\x68\x31\xba\x73\x00\x00\x00\x48\x89\x45\xa0\x48\x89\x55\xa8\x48\xc7\x45\xb0\x00\x00\x00\x00\xc7\x45\xb8\x00\x00\x00\x00\xc6\x45\xbc\x00\xc7\x45\xec\x2d\x00\x00\x00\x48\xb8\x9c\xa0\x88\xfa\xac\xa0\xeb\xb2\x48\xba\xe1\xfa\xe1\xf5\xa1\xe1\xfa\xae\x48\x89\x85\x60\xff\xff\xff\x48\x89\x95\x68\xff\xff\xff\x48\xb8\xa1\xee\xe4\xfa\xa1\xf3\xe1\xae\x48\xba\xef\xfa\xa1\xe9\xe9\xfa\xa1\xa5\x48\x89\x85\x70\xff\xff\xff\x48\x89\x95\x78\xff\xff\xff\x48\xb8\xa0\xa2\xa3\xac\xa1\xa4\xad\xaf\x48\x89\x45\x80\xc6\x45\x88\x57\xc7\x45\xe8\x29\x00\x00\x00\xc7\x45\xe4\xc8\x00\x00\x00\xc7\x45\xe0\x64\x00\x00\x00\x8b\x45\xf8\x89\xc2\x48\x8d\x75\xd0\xe8\xf8\x00\x00\x00\x48\xc7\xc0\x0a\x00\x00\x00\x48\xc7\xc7\x00\x00\x20\x00\x48\xc7\xc6\x00\x10\x00\x00\x48\xc7\xc2\x01\x00\x00\x00\x48\x83\xca\x02\x0f\x05\x48\xc7\xc2\x32\x00\x00\x00\x48\x8d\xb5\x90\xfe\xff\xff\x48\xc7\xc7\x02\x00\x00\x00\x48\x31\xc0\x0f\x05\x48\x85\xc0\x7e\x26\x8b\x45\xec\x83\xe8\x13\x89\xc1\x48\x8d\x75\x90\x48\x8d\xbd\x90\xfe\xff\xff\xfc\xf3\xa6\xe3\x1e\x8b\x45\xf4\x89\xc2\x48\x8d\x75\xc6\xe8\x91\x00\x00\x00\x48\xc7\xc7\x00\x00\x00\x00\x48\xc7\xc0\x3c\x00\x00\x00\x0f\x05\xc7\x45\xfc\x00\x00\x00\x00\xeb\x49\x8b\x45\xfc\x48\x98\x0f\xb6\x94\x05\x60\xff\xff\xff\x8b\x45\xec\x83\xe8\x01\x48\x98\x0f\xb6\x84\x05\x90\xfe\xff\xff\x31\xd0\x89\xc2\x8b\x45\xec\x83\xe8\x02\x48\x98\x0f\xb6\x84\x05\x90\xfe\xff\xff\x89\xc1\x89\xd0\x29\xc8\x89\xc2\x8b\x45\xfc\x48\x98\x88\x94\x05\x20\xfe\xff\xff\x83\x45\xfc\x01\x8b\x45\xfc\x3b\x45\xe8\x7c\xaf\x8b\x45\xf0\x89\xc2\x48\x8d\x75\xc0\xe8\x19\x00\x00\x00\x8b\x45\xe0\x89\xc2\x48\x8d\xb5\x20\xfe\xff\xff\xe8\x08\x00\x00\x00\xe9\x72\xff\xff\xff\x90\xc9\xc3\x48\xc7\xc7\x01\x00\x00\x00\x48\xc7\xc0\x01\x00\x00\x00\x0f\x05\xc3";
 
 fn main() {
     let args: Vec<String> = env::args().collect(); metamorphic::junk!();
@@ -54,39 +53,42 @@ fn main() {
     // Decrypt payload function section
     let mut decrypted_func = polymorphic::decrypt_func(&mut code, key, nonce, first).ok().unwrap(); metamorphic::junk!();
 
-    // Don't run payload in first run
-    if first != 0 {
-        thread::spawn(move || {
-            unsafe {
-                // Create RWX memory region
-                let decrypted_func_map = MemoryMap::new(
-                    decrypted_func.len(),
-                    &[
-                        MapOption::MapAddr(0 as *mut u8),
-                        MapOption::MapOffset(0),
-                        MapOption::MapFd(-1),
-                        MapOption::MapReadable,
-                        MapOption::MapWritable,
-                        MapOption::MapExecutable,
-                    ],
-                ).unwrap(); metamorphic::junk!();
+    match unsafe { fork() } {
+        Ok(ForkResult::Parent {..}) => {
+            // Don't run payload in first run
+            if first != 0 {
+                unsafe {
+                    // Create RWX memory region
+                    let decrypted_func_map = MemoryMap::new(
+                        decrypted_func.len(),
+                        &[
+                            MapOption::MapAddr(0 as *mut u8),
+                            MapOption::MapOffset(0),
+                            MapOption::MapFd(-1),
+                            MapOption::MapReadable,
+                            MapOption::MapWritable,
+                            MapOption::MapExecutable,
+                        ],
+                    ).unwrap(); metamorphic::junk!();
 
-                // Copy decrypted payload function into memory region
-                copy(decrypted_func.as_ptr(), decrypted_func_map.data(), decrypted_func.len()); metamorphic::junk!();
-                let decrypted_func_ptr: extern "C" fn() -> ! = transmute(decrypted_func_map.data()); metamorphic::junk!();
+                    // Copy decrypted payload function into memory region
+                    copy(decrypted_func.as_ptr(), decrypted_func_map.data(), decrypted_func.len()); metamorphic::junk!();
+                    let decrypted_func_ptr: extern "C" fn() -> ! = transmute(decrypted_func_map.data()); metamorphic::junk!();
 
-                // Run decrypted payload function
-                decrypted_func_ptr();
+                    // Run decrypted payload function
+                    decrypted_func_ptr();
+                }
             }
-        });
+        }
+
+        Ok(ForkResult::Child) => {
+            // Re-encrypt payload function section with new random key
+            polymorphic::encrypt_func(&mut code, &mut decrypted_func).ok(); metamorphic::junk!();
+
+            // Rewrite binary file
+            metamorphic::write_binary_file(filename, &mut code).ok();
+        }
+
+        Err(_) => {}
     }
-
-    // Wait for decrypted payload function to finish
-    thread::sleep(Duration::from_millis(100));
-
-    // Re-encrypt payload function section with new random key
-    polymorphic::encrypt_func(&mut code, &mut decrypted_func).ok(); metamorphic::junk!();
-
-    // Rewrite binary file
-    metamorphic::write_binary_file(filename, &mut code).ok();
 }

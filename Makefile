@@ -5,6 +5,9 @@ FLAGS = --$(RELEASE)
 BUILD = target
 BIN = aibohphobia
 
+# Assembly build
+ASM = asm_src
+
 # Debugging
 OBJDUMP = objdump
 KEYFLAGS = -s -j .nsp0
@@ -30,3 +33,4 @@ debug:
 
 clean:
 	$(RM) -r $(BUILD)
+	make -C $(ASM) clean

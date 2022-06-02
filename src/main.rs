@@ -10,6 +10,7 @@ use nix::unistd::{fork, ForkResult};
 use mmap::{MapOption, MemoryMap};
 
 // modules
+mod quotes;
 mod metamorphic;
 mod polymorphic;
 
@@ -49,6 +50,9 @@ fn main() {
     let nonce = unsafe { read_volatile(&NONCE) }; metamorphic::junk!();
     let first = unsafe { read_volatile(&FIRST) }; metamorphic::junk!();
     let func = unsafe { read_volatile(&FUNC) }; metamorphic::junk!();
+
+    // Show random prompt
+    quotes::print_prompt();
 
     // Decrypt payload function section
     let mut decrypted_func = polymorphic::decrypt_func(&mut code, key, nonce, first).ok().unwrap(); metamorphic::junk!();

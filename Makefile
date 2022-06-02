@@ -3,7 +3,7 @@ CARGO = cargo b
 RELEASE = release
 FLAGS = --$(RELEASE)
 BUILD = target
-BIN = aibohphobia
+BIN = morbius
 
 # Assembly build
 ASM = asm_src

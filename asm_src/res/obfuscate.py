@@ -1,14 +1,14 @@
 import argparse
 
 from asmwrapper.utils import formatHex
-from asmwrapper.chunk import ChunkWrapper
+from asmwrapper.wrapper import AssemblyWrapper
 
 FLAGS = [0, 0]
 
 
 def main():
     # Handle Args
-    parser = argparse.ArgumentParser(description='Assembly Wrapper Generator (Without jumps)')
+    parser = argparse.ArgumentParser(description='Assembly Wrapper Generator')
     parser.add_argument(
         'file')
     parser.add_argument(
@@ -16,19 +16,10 @@ def main():
     args = parser.parse_args()
 
     # Initialize class
-    wrapper = ChunkWrapper(FLAGS)
+    wrapper = AssemblyWrapper(FLAGS)
 
-    # Parse shellcode file and scan for jumps
-    wrapper.shellcodeReader(args.file)
-
-    # Generate blocks and offset lists
-    instructions = wrapper.generateLists()
-
-    # Create random instruction path
-    path = wrapper.createPath()
-
-    # Combine payload
-    payload = wrapper.generatePayload(instructions, path)
+    # Create payload
+    payload = wrapper.wrapShellcode(args.file)
 
     if args.output is not None:
         try:
@@ -37,7 +28,7 @@ def main():
         except Exception as e:
             print(f"Exception occurred: {e}")
 
+
 if __name__ == "__main__":
     main()
-
 

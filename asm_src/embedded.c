@@ -15,12 +15,12 @@ void shellcode(void) {
     const char correct_print[20] = "Time to get Morbed, ";
     const int correct_print_len = 20;
     // TISC{th1s_1s_n0t_th3_ac7u4l_fl4g_lM40}_MJd_U2
-    const char key[45] = { 'T','I','S','C','{','t','h','1','s','_','1','s','_','n','0','t','_','t','h','3','_','a','c','7','u','4','l','_','f','l','4','g','_','l','M','4','0','}','\0','\0','\0','\0','\0','\0','\0' };
+    const char key[38] = { 'T','I','S','C','{','t','h','1','s','_','1','s','_','n','0','t','_','t','h','3','_','a','c','7','u','4','l','_','f','l','4','g','_','l','M','4','0','}' };
     const int key_len = 38;
     const int input_len = 45;
-    const char buf[50] = { 0x63, 0x74, 0x78, 0xa5, 0x8c, 0xa6, 0x56, 0x7e, 0xd3, 0xff, 0x7b, 0xf4, 0x90, 0x40, 0x2e, 0x42, 0x25, 0x7a, 0x49, 0xbd, 0x65, 0x52, 0x1f, 0xb, 0x20, 0xd4, 0xc3, 0xa6, 0x70, 0xaa, 0x12, 0xe, 0x6a, 0xb7, 0x6b, 0x72, 0xab, 0xc7, 0x5, 0x19, 0x5d, 0xb9, 0x77, 0x7, 0xcc, 0x75, 0x38, 0x6f, 0x30, 0x7d };
-    const int buf_len = 50;
-    char input[200];
+    const char buf[48] = { 0x63, 0x74, 0x78, 0xa5, 0x8c, 0xa6, 0x56, 0x7e, 0xd3, 0xff, 0x7b, 0xf4, 0x90, 0x40, 0x2e, 0x42, 0x25, 0x7a, 0x49, 0xbd, 0x65, 0x52, 0x1f, 0xb, 0x20, 0xd4, 0xc3, 0xa6, 0x70, 0xaa, 0x12, 0xe, 0x6a, 0xb7, 0x6b, 0x72, 0xab, 0xc7, 0x5, 0x19, 0x25, 0x93, 0xad, 0x9b, 0xa1, 0x4c, 0x8a, 0x10 };
+    const int buf_len = 48;
+    char input[50];
 
     // Start Print
     asm (
@@ -88,13 +88,22 @@ void shellcode(void) {
             "decode:"
             : :
         );
-//     unsigned int dec_key[4] = { 0x5574, 0x646e, 0x4a55, 0x4d32 };
+
+    // unsigned int dec_key[4] = { 0x5574, 0x646e, 0x4a55, 0x4d32 };
     unsigned int dec_key[4] = { (uint32_t)input[input_len - 2] << 8 | (uint32_t)input[15], 
                                 (uint32_t)input[input_len - 4] << 8 | (uint32_t)input[13], 
                                 (uint32_t)input[input_len - 5] << 8 | (uint32_t)input[input_len - 2], 
                                 (uint32_t)input[input_len - 6] << 8 | (uint32_t)input[input_len - 1]};
-    for (int i=0; i < (int) buf_len / BLOCK_SIZE; i++)
-        decipher(32, (uint32_t*)(buf + i * BLOCK_SIZE), dec_key);
+
+    // Mixup block decryption
+//     for (int i=0; i < (int) buf_len / BLOCK_SIZE; i++)
+//         decipher(32, (uint32_t*)(buf + i * BLOCK_SIZE), dec_key);
+    decipher(32, (uint32_t*)(buf + 2 * BLOCK_SIZE), dec_key);
+    decipher(32, (uint32_t*)(buf + 1 * BLOCK_SIZE), dec_key);
+    decipher(32, (uint32_t*)(buf + 5 * BLOCK_SIZE), dec_key);
+    decipher(32, (uint32_t*)(buf + 3 * BLOCK_SIZE), dec_key);
+    decipher(32, (uint32_t*)(buf + 0 * BLOCK_SIZE), dec_key);
+    decipher(32, (uint32_t*)(buf + 4 * BLOCK_SIZE), dec_key);
 
     // strncmp result succeeds
     asm (

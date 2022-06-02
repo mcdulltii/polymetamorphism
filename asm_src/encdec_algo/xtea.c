@@ -47,7 +47,7 @@ void printHex(char *str) {
 
 int main(int argc, char *argv[])
 {
-    unsigned char flag[] = "TISC{P0lyM0rph15m_r3m1nd5_m3_0f_M0rb1us_738594830}";
+    unsigned char flag[] = "TISC{P0lyM0rph15m_r3m1nd5_m3_0f_M0rb1us_7359430}";
 
     char str[512];
     strcpy(str, flag);

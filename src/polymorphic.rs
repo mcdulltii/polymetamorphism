@@ -16,7 +16,7 @@ use chacha20::cipher::{KeyIvInit, StreamCipher, StreamCipherSeek};
 use crate::metamorphic;
 
 // Payload function section size
-pub const CRYPTED_FUNC_SIZE: usize = 556;
+pub const CRYPTED_FUNC_SIZE: usize = 1406;
 
 /// Get ELF sections from specified name.
 ///

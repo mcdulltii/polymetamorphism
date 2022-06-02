@@ -23,6 +23,7 @@ const PROMPT: [&str; 5] = ["Someone for the fucking life of me help my brother (
                             "I was only nine years old. I loved Morbius so much, I had all the merchandise and movies. I'd pray to Morbius every night before I go to bed, thanking for the life I've been given. 'Morbius is love', I would say, “Morbius is life'. My dad hears me and calls me a faggot. I knew he was just jealous for my devotion of Morbius. I called him a cunt. He slaps me and sends me to go to sleep. I'm crying now and my face hurts. I lay in bed and it's really cold. A warmth is moving towards me. I feel something touch me. It's Morbius. I'm so happy. He whispers in my ear, “It’s morbin time'. He grabs me with his powerful morby hands, and puts me on my hands and knees. I spread my ass-cheeks for Morbius. He penetrates my butthole. It hurts so much, but I do it for Morbius. I can feel my butt tearing as my eyes start to water. I push against his force. I want to please Morbius. He roars a mighty roar, as he fills my butt with his love. My dad walks in. Morbius looks him straight in the eye, and says, 'Get morbed'. Morbius leaves through my window. Morbius is love. Morbius is life.",
                             "The line 'It's Morbin time' simultaneously exists and does not in the movie because no one has seen the film to be sure."];
 
+/// Print initial prompt
 pub fn print_prompt() {
     let mut rng = rand::thread_rng(); metamorphic::junk!();
     let die = Uniform::from(0..5); metamorphic::junk!();

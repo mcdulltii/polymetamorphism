@@ -2,6 +2,7 @@
 CARGO = cargo b
 RELEASE = release
 FLAGS = --$(RELEASE)
+DIST = dist
 BUILD = target
 BIN = morbius
 
@@ -15,7 +16,7 @@ NONCEFLAGS = -s -j .nsp1
 FIRSTFLAGS = -s -j .lbss
 FUNCFLAGS = -s -j .hash
 
-.PHONY: $(BIN) debug run
+.PHONY: $(BIN) debug run release clean
 
 all: $(BIN)
 
@@ -24,6 +25,9 @@ $(BIN):
 
 run:
 	$(BUILD)/$(RELEASE)/$(BIN)
+
+release:
+	$(DIST)/$(BIN)
 
 debug:
 	$(OBJDUMP) $(KEYFLAGS) $(BUILD)/$(RELEASE)/$(BIN)

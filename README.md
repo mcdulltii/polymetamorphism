@@ -1,20 +1,25 @@
-# Polymorphism in Rust
-[![](https://img.shields.io/badge/Category-Binary%20Exploitation-E5A505?style=flat-square)]() [![](https://img.shields.io/badge/Language-Rust%20%2f%20C%20%2f%20ASM-E5A505?style=flat-square)]() [![](https://img.shields.io/badge/Version-0.3.0-E5A505?style=flat-square&color=green)]()
+# Morbius
 
-## Details
+Rust polymorphic shellcode loader with metamorphic junk byte insertion
 
-- Rust polymorphic loader
-- Runtime ChaCha20 stream cipher decryption on shellcode buffer
-- Shellcode reads user input
-- Execution continues if user input matches hardcoded string
-- Some characters of user input used for XTEA block cipher decryption on flag buffer
-- Flag decrypted buffer printed
+# Description (public)
 
-## LICENSE
+```shell
+```
 
-This project is licensed under the [GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/).
+# Setup Guide
 
-## References
+1. `dist/morbius` contains the initial unencrypted ELF build. Run `make release` at least once to self-encrypt the ELF build.
 
-- https://github.com/mmore21/dolos
-- https://github.com/PoCInnovation/Whitecomet-Research
+2. Ensure the byte contents of `objdump -s -j .lbss ./dist/morbius` is `01`.
+
+2. Provide `morbius` in `dist/` to players
+
+# Solution
+
+TODO
+
+# Flag
+
+`TISC{P0lyM0rph15m_r3m1nd5_m3_0f_M0rb1us_7359430}`
+

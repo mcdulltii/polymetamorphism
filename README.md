@@ -17,7 +17,7 @@ Rust polymorphic shellcode loader with metamorphic junk byte insertion
 
 # Solution
 
-TODO
+`objcopy morbius_extract /dev/null --dump-section .hash=dump`
 
 # Flag
 

@@ -4,6 +4,7 @@
 ## Details
 
 - Rust polymorphic loader
+- Retrieves ELF sections by blake2 hash
 - Runtime ChaCha20 stream cipher decryption on shellcode buffer
 - Shellcode reads user input
 - Execution continues if user input matches hardcoded string

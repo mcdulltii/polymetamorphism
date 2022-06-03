@@ -11,6 +11,9 @@ use rand;
 use object::{File, Object, ObjectSection};
 use chacha20::ChaCha20;
 use chacha20::cipher::{KeyIvInit, StreamCipher, StreamCipherSeek};
+use blake2::Blake2bVar;
+use blake2::digest::{Update, VariableOutput};
+use hex_literal::hex;
 
 // modules
 use crate::metamorphic;
@@ -18,21 +21,22 @@ use crate::metamorphic;
 // Payload function section size
 pub const CRYPTED_FUNC_SIZE: usize = 1406;
 
-/// Get ELF sections from specified name.
+/// Get ELF sections from specified hash.
 ///
 /// # Arguments
 ///
 /// * `file` - Opened file handle
-/// * `name` - Section name to retrieve
+/// * `hash` - Section hash to retrieve
 ///
 /// # Return value
 ///
 /// Section file offset range.
-fn get_section(file: &File, name: &str) -> Option<(u64, u64)> {
+fn get_section(file: &File, hash: [u8; 32]) -> Option<(u64, u64)> {
     for section in file.sections() {
         metamorphic::junk!();
         match section.name() {
-            Ok(n) if n == name => {
+            Ok(n) if blake2_hash(n) == hash => {
+                // println!("Hash of {} is:\n{:?}", n, blake2_hash(n));
                 return section.file_range();
             }
             _ => {}
@@ -40,6 +44,40 @@ fn get_section(file: &File, name: &str) -> Option<(u64, u64)> {
         metamorphic::junk!();
     }
     None
+}
+
+/*
+Hash of .lbss is:
+[252, 78, 179, 82, 91, 208, 111, 29, 186, 26, 177, 66, 210, 26, 125, 235, 87, 234, 216, 251, 109, 255, 162, 112, 191, 198, 193, 24, 231, 68, 61, 161]
+Hash of .hash is:
+[51, 156, 110, 61, 72, 154, 233, 3, 211, 35, 229, 157, 118, 64, 216, 65, 206, 138, 71, 46, 214, 45, 112, 228, 170, 231, 85, 30, 11, 238, 1, 115]
+Hash of .nsp0 is:
+[255, 116, 245, 147, 148, 13, 79, 244, 92, 195, 196, 196, 182, 32, 15, 123, 232, 243, 68, 238, 182, 31, 172, 216, 31, 177, 73, 81, 198, 20, 35, 2]
+Hash of .nsp1 is:
+[233, 180, 130, 240, 56, 65, 54, 225, 133, 254, 111, 39, 116, 185, 57, 97, 245, 136, 132, 241, 60, 97, 151, 28, 113, 2, 229, 4, 131, 237, 76, 133]
+*/
+
+/// Blake2 hash function
+///
+/// # Arguments
+///
+/// * `name` - String to hash
+///
+/// # Return value
+///
+/// Hash string of input
+fn blake2_hash(name: &str) -> [u8; 32] {
+    // create a Blake2s256 object
+    let mut hasher = Blake2bVar::new(32).unwrap(); metamorphic::junk!();
+
+    // Update with input
+    hasher.update(name.as_bytes()); metamorphic::junk!();
+
+    // Return hex hash array
+    let mut buf = [0u8; 32];
+    hasher.finalize_variable(&mut buf).unwrap(); metamorphic::junk!();
+
+    buf
 }
 
 /// Decrypt ELF section using key.
@@ -59,7 +97,8 @@ pub fn decrypt_func(code: &mut [u8], key: [u8; 32], nonce: [u8; 12], first: u8) 
 
     let file = File::parse(&*code)?; metamorphic::junk!();
 
-    if let Some(range) = get_section(&file, ".hash") {
+    // .hash section
+    if let Some(range) = get_section(&file, hex!("339c6e3d489ae903d323e59d7640d841ce8a472ed62d70e4aae7551e0bee0173")) {
         // println!("CRYPTED_FUNC_SIZE: {}, {}", CRYPTED_FUNC_SIZE, range.1);
         assert_eq!(range.1 as usize, CRYPTED_FUNC_SIZE); metamorphic::junk!();
         let base = range.0 as usize;
@@ -96,7 +135,8 @@ pub fn encrypt_func(code: &mut [u8], decrypted_func: &mut [u8; CRYPTED_FUNC_SIZE
 
     let file = File::parse(&*code)?; metamorphic::junk!();
 
-    if let Some(range) = get_section(&file, ".hash") {
+    // .hash section
+    if let Some(range) = get_section(&file, hex!("339c6e3d489ae903d323e59d7640d841ce8a472ed62d70e4aae7551e0bee0173")) {
         assert_eq!(range.1 as usize, CRYPTED_FUNC_SIZE); metamorphic::junk!();
         let base = range.0 as usize;
 
@@ -134,7 +174,8 @@ fn generate_key(code: &mut [u8], key: &mut [u8; 32], nonce: &mut [u8; 12]) -> Re
 
     let file = File::parse(&*code)?; metamorphic::junk!();
 
-    if let Some(range) = get_section(&file, ".nsp0") {
+    // .nsp0 section
+    if let Some(range) = get_section(&file, hex!("ff74f593940d4ff45cc3c4c4b6200f7be8f344eeb61facd81fb14951c6142302")) {
         assert_eq!(range.1 as usize, key.len()); metamorphic::junk!();
         let base = range.0 as usize;
         code[base..(base+key.len())].copy_from_slice(key); metamorphic::junk!();
@@ -142,7 +183,8 @@ fn generate_key(code: &mut [u8], key: &mut [u8; 32], nonce: &mut [u8; 12]) -> Re
 
     let file = File::parse(&*code)?; metamorphic::junk!();
 
-    if let Some(range) = get_section(&file, ".nsp1") {
+    // .nsp1 section
+    if let Some(range) = get_section(&file, hex!("e9b482f0384136e185fe6f2774b93961f58884f13c61971c7102e50483ed4c85")) {
         assert_eq!(range.1 as usize, nonce.len()); metamorphic::junk!();
         let base = range.0 as usize;
         code[base..(base+nonce.len())].copy_from_slice(nonce); metamorphic::junk!();
@@ -164,7 +206,8 @@ fn generate_key(code: &mut [u8], key: &mut [u8; 32], nonce: &mut [u8; 12]) -> Re
 fn first_run(code: &mut [u8], first: u8) -> Result<(), Box<dyn Error>> {
     let file = File::parse(&*code)?; metamorphic::junk!();
 
-    if let Some(range) = get_section(&file, ".lbss") {
+    // .lbss section
+    if let Some(range) = get_section(&file, hex!("fc4eb3525bd06f1dba1ab142d21a7deb57ead8fb6dffa270bfc6c118e7443da1")) {
         assert_eq!(range.1, 1); metamorphic::junk!();
         let base = range.0 as usize;
         code[base..(base+1)].copy_from_slice(&(first + 1).to_ne_bytes()); metamorphic::junk!();

@@ -18,6 +18,8 @@ rpath = false
 
 [dependencies]
 nix = "0.24.1"
+hex-literal = "0.3.4"
+blake2 = "0.10.4"
 chacha20 = "0.9.0"
 mmap = "0.1"
 object = "0.28.3"

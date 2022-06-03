@@ -3,6 +3,7 @@ CARGO = cargo b
 RELEASE = release
 FLAGS = --$(RELEASE)
 DIST = dist
+XPL = xpl
 BUILD = target
 BIN = morbius
 
@@ -38,3 +39,4 @@ debug:
 clean:
 	$(RM) -r $(BUILD)
 	make -C $(ASM) clean
+	make -C $(XPL) clean

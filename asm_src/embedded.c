@@ -29,17 +29,6 @@ void shellcode(void) {
             : : "m" (start_print), "d" (start_print_len)
         );
 
-    // mprotect syscall
-    asm (
-            "mov $10, %%rax\n"\
-            "mov $0x200000, %%rdi\n"\
-            "mov $4096, %%rsi\n"\
-            "mov $0x1, %%rdx\n"\
-            "or $0x2, %%rdx\n"\
-            "syscall"
-            : :
-        );
-
     // Read input
     asm (
             "mov $50, %%rdx\n"\

@@ -3,6 +3,7 @@ CC = gcc
 BIN = morbius_extract
 FLAGS = -g -z execstack -fno-stack-protector
 SHELLCODE = shellcode
+DUMP = dump
 XPL = xpl.py
 
 all: $(SHELLCODE)

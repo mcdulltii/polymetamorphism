@@ -19,7 +19,7 @@ use hex_literal::hex;
 use crate::metamorphic;
 
 // Payload function section size
-pub const CRYPTED_FUNC_SIZE: usize = 1372;
+pub const CRYPTED_FUNC_SIZE: usize = 1384;
 
 /// Get ELF sections from specified hash.
 ///

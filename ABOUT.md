@@ -11,6 +11,86 @@
 - Some characters of user input used for XTEA block cipher decryption on flag buffer
 - Flag decrypted buffer printed
 
+## Project Layout
+
+```html
+.
+|-- ABOUT.md
+|-- asm_src
+|   |-- embedded.c
+|   |-- encdec_algo
+|   |   |-- xtea
+|   |   `-- xtea.c
+|   |-- Makefile
+|   |-- res
+|   |   |-- asmwrapper -> ../../utils/ASMWrapper/asmwrapper
+|   |   |-- decipher.bin
+|   |   |-- embedded.nasm
+|   |   `-- obfuscate.py
+|   `-- shellcode.c
+|-- Cargo.lock
+|-- Cargo.toml
+|-- dist
+|   `-- morbius
+|-- flag.txt
+|-- LICENSE
+|-- Makefile
+|-- README.md
+|-- src
+|   |-- main.rs
+|   |-- metamorphic.rs
+|   |-- polymorphic.rs
+|   `-- quotes.rs
+|-- tree.txt
+|-- utils
+|   `-- ASMWrapper
+|       |-- ABOUT.md
+|       |-- asmwrapper
+|       |   |-- chunk.py
+|       |   |-- graph.py
+|       |   |-- utils.py
+|       |   `-- wrapper.py
+|       |-- docs
+|       |   |-- jmpshort_disasm.png
+|       |   |-- jmpshort.png
+|       |   `-- wrap_disasm.png
+|       |-- LICENSE
+|       |-- Makefile
+|       |-- README.md
+|       |-- tests
+|       |   |-- asmwrapper -> ../asmwrapper
+|       |   |-- bin_jumps
+|       |   |   |-- jumpTest.c
+|       |   |   |-- jumpTest.nasm
+|       |   |   |-- Makefile
+|       |   |   `-- shellcode.c
+|       |   |-- bin_wo_jumps
+|       |   |   |-- Makefile
+|       |   |   |-- output.bin
+|       |   |   `-- shellcode.c
+|       |   |-- Makefile
+|       |   |-- test_jumps.py
+|       |   `-- test_wo_jumps.py
+|       `-- TODO.txt
+`-- xpl
+    |-- dump
+    |-- Makefile
+    |-- morbius
+    |-- morbius_extract
+    |-- morbius_rewrite
+    |-- res
+    |   |-- nop_keystream.png
+    |   |-- objdump.png
+    |   |-- sections_bottom.png
+    |   |-- sections_top.png
+    |   `-- xpl.png
+    |-- shellcode.c
+    |-- shellcode.i64
+    `-- xpl.py
+
+17 directories, 60 files
+```
+
 ## LICENSE
 
 This project is licensed under the [GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/).

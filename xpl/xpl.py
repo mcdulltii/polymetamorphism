@@ -4,96 +4,82 @@ import time
 import string
 import itertools
 from pwn import *
+from Crypto.Util.number import long_to_bytes
 
 BINARY = './shellcode'
 context.binary = ELF(BINARY)
-
-key = 'TISC{th1s_1s_n0t_th3_ac7u4l_fl4g_lM40}'
+context.log_level = 'error'
 
 """
-void __fastcall __noreturn dump(__int64 a1)
-{
-  /* snip */
+*(_QWORD *)(v1 - 160) = 0x1E475B546C7C667BLL;
+*(_QWORD *)(v1 - 152) = 0x5B1F41705C1E705CLL;
+*(_QWORD *)(v1 - 144) = 0x184C4E701C475B70LL;
+*(_QWORD *)(v1 - 136) = 0x481B434970431B5ALL;
+*(_DWORD *)(v1 - 128) = 459424624;
+*(_WORD *)(v1 - 124) = 21023;
 
-  qmemcpy((void *)(v1 - 112), "Time to get Morbed, ", 20);
-  qmemcpy((void *)(v1 - 160), "TISC{th1s_1s_n0t_th3_ac7u4l_fl4g_lM40}", 38);
-  *(_DWORD *)(v1 - 16) = 38;
-  *(_DWORD *)(v1 - 20) = 45;
-  *(_QWORD *)(v1 - 208) = 0x7E56A68CA5787463LL;
-  *(_QWORD *)(v1 - 200) = 0x422E4090F47BFFD3LL;
-  *(_QWORD *)(v1 - 192) = 0xB1F5265BD497A25LL;
-  *(_QWORD *)(v1 - 184) = 0xE12AA70A6C3D420LL;
-  *(_QWORD *)(v1 - 176) = 0x1905C7AB726BB76ALL;
-  *(_QWORD *)(v1 - 168) = 0x108A4CA19BAD9325LL;
-  *(_DWORD *)(v1 - 24) = 48;
+Input is xor-ed with 47 and compared with this QWORD array.
+"""
 
-  /* snip */
+key = b''.join([long_to_bytes(i)[::-1] for i in [0x1E475B546C7C667B, 0x5B1F41705C1E705C, 0x184C4E701C475B70, 0x481B434970431B5A, 459424624, 21023]])
+key = bytearray(i ^ 47 for i in key)
+print(f"{key=}")
 
-  sys_read(2u, (char *)(v1 - 272), 50uLL);
+"""
+Input character checks:
+if ( (*(char *)(v1 + *(int *)(v1 - 4) - 288) <= 47 || *(char *)(v1 + *(int *)(v1 - 4) - 288) > 57)
+    && (*(char *)(v1 + *(int *)(v1 - 4) - 288) <= 64 || *(char *)(v1 + *(int *)(v1 - 4) - 288) > 125) )
 
-  /* snip */
+Input characters referenced:
+*(v1 - 304) = (*(char *)(v1 + *(v1 - 28) - 3 - 288) << 8) | (char)(*(_BYTE *)(v1 - 273) ^ 0x2F);
+*(v1 - 300) = 0x64 << 8 | (char)(*(_BYTE *)(v1 - 275) ^ 0x2F);
+*(v1 - 296) = 0x4A << 8 | *(char *)(v1 + *(v1 - 28) - 3 - 288);
+*(v1 - 292) = (*(char *)(v1 + *(v1 - 28) - 9 - 288) << 8) | 0x32;
 
-  *(v1 - 288) = (*(char *)(v1 + *(v1 - 20) - 2 - 272) << 8) | *(char *)(v1 - 272 + 15);
-  *(v1 - 284) = (*(char *)(v1 + *(v1 - 20) - 4 - 272) << 8) | *(char *)(v1 - 272 + 13);
-  *(v1 - 280) = (*(char *)(v1 + *(v1 - 20) - 5 - 272) << 8) | *(char *)(v1 + *(v1 - 20) - 2 - 272);
-  *(v1 - 276) = (*(char *)(v1 + *(v1 - 20) - 6 - 272) << 8) | *(char *)(v1 + *(v1 - 20) - 1 - 272);
+Since (v1 - 28) is 49, and input is sys_read into (char *)(v1 - 288),
+*(v1 - 304) = (*(char *)(input + 49 - 3) << 8) | (char)(*(_BYTE *)(input + 15) ^ 0x2F);
+*(v1 - 300) = 0x64 << 8 | (char)(*(_BYTE *)(input + 13) ^ 0x2F);
+*(v1 - 296) = 0x4A << 8 | *(char *)(input + 49 - 3);
+*(v1 - 292) = (*(char *)(input + 49 - 9) << 8) | 0x32;
 
-  /* snip */
-}
-
-NOTE:
-  input is read to (char *)(v1 - 272).
-  input is checked that it starts with (void *)(v1 - 160).
-
-  Since (v1 - 20) is 45,
-    *(v1 - 288) = (*(char *)(input + 45 - 2) << 8) | *(char *)(input + 15);
-    *(v1 - 284) = (*(char *)(input + 45 - 4) << 8) | *(char *)(input + 13);
-    *(v1 - 280) = (*(char *)(input + 45 - 5) << 8) | *(char *)(input + 45 - 2);
-    *(v1 - 276) = (*(char *)(input + 45 - 6) << 8) | *(char *)(input + 45 - 1);
-  And *(v1 - 288) is referenced later in a function call.
-
-  Unique input chars used are:
-  input[13] // Known
-  input[15] // Known
-  input[39]
-  input[40]
-  input[41]
-  input[43]
-  input[44]
-
-  Thus 5 characters to bruteforce.
+Thus, input chars referenced are:
+input[13] // Known
+input[15] // Known
+input[40] // To bruteforce
+input[46] // To bruteforce
 """
 
 def main():
-    printable = string.printable
-    inpt = list(key + (45 - len(key)) * " ")
+    printable = [i for i in string.printable if (ord(i) >= 0x30 and ord(i) <= 0x39) or (ord(i) >= 0x41 and ord(i) <= 0x7D)]
+    inpt = bytearray(key + (49 - len(key)) * b"A")
 
     pty = process.PTY
-    for each in itertools.permutations(printable, 5):
+    log.progress("Bruteforcing input")
+    for each in itertools.permutations(printable, 2):
         c = process(stdin=pty, stdout=pty)
 
         log.info(b'Prompt: ' + c.recv())
 
-        inpt[39] = each[0]
-        inpt[40] = each[1]
-        inpt[41] = each[2]
-        inpt[43] = each[3]
-        inpt[44] = each[4]
+        inpt[40] = ord(each[0])
+        inpt[46] = ord(each[1])
 
-        c.sendline(''.join(inpt))
+        c.sendline(inpt)
 
-        output = c.recv()
+        log.info(f"Tried {inpt}")
+
+        try:
+            output = c.recv()
+            if b'TISC' in output:
+                print(f"{output=}")
+                break
+        except:
+            log.warn("Failed recv")
 
         c.close()
-
-        log.info(f"Tried {each}")
-        if b'TISC' in output:
-            log.info(f"{output=}")
-            break
 
 if __name__ == '__main__':
     start = time.time()
     main()
     end = time.time()
-    log.info(f"Finished in {end - start}s")
+    print(f"Finished in {end - start}s")
 

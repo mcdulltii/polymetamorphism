@@ -19,7 +19,7 @@ $(SHELLCODE):
 run:
 	./$(SHELLCODE)
 
-xpl:
+xpl: $(SHELLCODE)
 	$(PY) $(XPL)
 
 clean:

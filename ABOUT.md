@@ -11,6 +11,35 @@
 - Some characters of user input used for XTEA block cipher decryption on flag buffer
 - Flag decrypted buffer printed
 
+```mermaid
+sequenceDiagram
+participant morbius
+morbius->>+metamorphic:read_binary_file(filename, code)
+Note over morbius, metamorphic: Read binary into buffer
+metamorphic->>-morbius:code buffer
+morbius->>+metamorphic:metamorph(code)
+Note over morbius, metamorphic: Find and rewrite metamorphic junk code sections
+metamorphic->>-morbius:metamorphed code buffer
+morbius->>quotes:print_prompt()
+Note over quotes: Print initial prompt
+morbius->>+polymorphic:decrypt_func(code, key, nonce, first)
+Note over morbius, polymorphic: Decrypt shellcode section with key and nonce
+polymorphic->>-morbius:decrypted shellcode buffer
+par Parent forked process
+    morbius-->>shellcode:decrypted_func_ptr()
+    Note over shellcode: Forked process to run shellcode
+    STDIN->>shellcode:sys_read 50 characters
+    Note over shellcode: Input check for alphanumeric then xor 47
+    Note over shellcode: Decrypt and sys_write stack buffer with input characters
+and Child forked process
+    morbius->>+polymorphic:encrypt_func(code, decrypted_func)
+    Note over morbius, polymorphic: Encrypt shellcode section with new key and nonce
+    polymorphic->>-morbius:encrypted shellcode buffer
+    morbius->>metamorphic:write_binary_file(filename, code)
+    Note over metamorphic: Overwrite initial binary with buffer
+end
+```
+
 ## Project Layout
 
 ```html

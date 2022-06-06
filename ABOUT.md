@@ -44,34 +44,11 @@
 |-- tree.txt
 |-- utils
 |   `-- ASMWrapper
-|       |-- ABOUT.md
-|       |-- asmwrapper
-|       |   |-- chunk.py
-|       |   |-- graph.py
-|       |   |-- utils.py
-|       |   `-- wrapper.py
-|       |-- docs
-|       |   |-- jmpshort_disasm.png
-|       |   |-- jmpshort.png
-|       |   `-- wrap_disasm.png
-|       |-- LICENSE
-|       |-- Makefile
-|       |-- README.md
-|       |-- tests
-|       |   |-- asmwrapper -> ../asmwrapper
-|       |   |-- bin_jumps
-|       |   |   |-- jumpTest.c
-|       |   |   |-- jumpTest.nasm
-|       |   |   |-- Makefile
-|       |   |   `-- shellcode.c
-|       |   |-- bin_wo_jumps
-|       |   |   |-- Makefile
-|       |   |   |-- output.bin
-|       |   |   `-- shellcode.c
-|       |   |-- Makefile
-|       |   |-- test_jumps.py
-|       |   `-- test_wo_jumps.py
-|       `-- TODO.txt
+|       `-- asmwrapper
+|           |-- chunk.py
+|           |-- graph.py
+|           |-- utils.py
+|           `-- wrapper.py
 `-- xpl
     |-- dump
     |-- Makefile

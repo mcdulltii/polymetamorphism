@@ -4,13 +4,19 @@ Rust polymorphic shellcode loader with metamorphic junk byte insertion.
 
 (Shellcode was rewritten because angr couldn't work against this)
 
-# Description (public)
+## Description (public)
 
-```shell
-If you can't handle me at my worst, then you don't deserve me at my morbiest.
+```text
+The contents of a phishing email has been extracted:
+
+There are several reasons I may deem you morbin-able to be worthy of being morbed. These include, but are not limited to:
+I am very Morby
+I see you being morbin-able
+
+To prove that you are a morber, un-morb this file!
 ```
 
-# Setup Guide
+## Setup Guide
 
 1. `dist/morbius` contains the initial unencrypted ELF build. Run `make release` at least once to self-encrypt the ELF build.
 
@@ -18,7 +24,7 @@ If you can't handle me at my worst, then you don't deserve me at my morbiest.
 
 3. Provide `morbius` in `dist/` to players
 
-# Solution
+## Solution
 
 One needs to be perceptive about the challenge title being related to `morph`. By checking the hash of the binary, it can be seen that it changes every run.
 
@@ -51,7 +57,6 @@ As such, we can create a bruteforce script given the previous alphanumeric chara
 
 ![exploit](xpl/res/xpl.png)
 
-# Flag
+## Flag
 
 `TISC{P0lyM0rph15m_r3m1nd5_m3_0f_M0rb1us_7359430}`
-

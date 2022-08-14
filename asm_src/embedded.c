@@ -8,7 +8,7 @@
 void decipher(unsigned int num_rounds, uint32_t v[2], uint32_t const key[4]);
 
 void shellcode(void) {
-    const char line[33] = "--------------------------------\n";
+    const char line[33] = "-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~\n";
     const int line_len = 33;
     const char start_print[18] = "It's Morbin Time!\n";
     const int start_print_len = 18;

@@ -24,6 +24,14 @@ To prove that you are a morber, un-morb this file!
 
 3. Provide `morbius` in `dist/` to players
 
+## License
+
+This project is distributed under the terms of GPL-3.0 license.
+
+See [GPL-3.0 license](https://github.com/mcdulltii/polymetamorphism/blob/master/LICENSE) for details.
+
+Any reference and usage of this project source are to be disclosed and retain this license.
+
 ## Solution
 
 One needs to be perceptive about the challenge title being related to `morph`. By checking the hash of the binary, it can be seen that it changes every run.
